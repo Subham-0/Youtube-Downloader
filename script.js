@@ -7,7 +7,7 @@ function downloadVideo() {
     }
 
     // Send a request to the backend to download the video
-    fetch('https://your-backend-url.vercel.app/api/download?url=' + encodeURIComponent(url))
+    fetch('https://your-project-name.vercel.app/api/download?url=' + encodeURIComponent(url))
         .then(response => {
             if (response.ok) {
                 // Redirect to the download link
