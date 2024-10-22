@@ -1,15 +1,22 @@
-const ytdl = require('ytdl-core');
+import { exec } from 'child_process';
 
 export default function handler(req, res) {
-    res.status(200).json({ message: "API is working!" });
-  }
-// export default async function handler(req, res) {
-//     const videoUrl = req.query.url;
+    if (req.method === 'POST') {
+        const { url } = req.body;
 
-//     if (!videoUrl || !ytdl.validateURL(videoUrl)) {
-//         return res.status(400).json({ success: false, message: 'Invalid URL' });
-//     }
+       
+        const command = `youtube-dl -f best "${url}"`;
 
-//     res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
-//     ytdl(videoUrl, { format: 'mp4' }).pipe(res);
-// }
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error: ${stderr}`);
+                return res.status(500).json({ message: 'Error downloading video.' });
+            }
+            console.log(`Downloaded: ${stdout}`);
+            res.status(200).json({ message: 'Video downloaded successfully!' });
+        });
+    } else {
+        res.setHeader('Allow', ['POST']);
+        res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+}

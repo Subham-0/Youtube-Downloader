@@ -1,31 +1,28 @@
-function downloadVideo() {
-    const url = document.getElementById('url').value;
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+    const videoUrl = document.getElementById('videoUrl').value;
+    const messageElement = document.getElementById('message');
 
-    if (!url) {
-        document.getElementById('message').textContent = "Please paste a YouTube video URL.";
+    if (!videoUrl) {
+        messageElement.textContent = 'Please enter a YouTube URL.';
         return;
     }
 
-    // Send a request to the backend to download the video
-    fetch('https://your-project-name.vercel.app/api/download?url=' + encodeURIComponent(url))
-        .then(response => {
-            if (response.ok) {
-                // Redirect to the download link
-                return response.blob();
-            } else {
-                throw new Error("Failed to download the video.");
-            }
-        })
-        .then(blob => {
-            const downloadUrl = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = downloadUrl;
-            a.download = "video.mp4";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        })
-        .catch(() => {
-            document.getElementById('message').textContent = "An error occurred while downloading.";
+    try {
+        const response = await fetch('/api/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: videoUrl })
         });
-}
+
+        if (response.ok) {
+            const data = await response.json();
+            messageElement.textContent = 'Download initiated!'; // Modify based on actual response
+        } else {
+            throw new Error('Failed to download video.');
+        }
+    } catch (error) {
+        messageElement.textContent = error.message;
+    }
+});
